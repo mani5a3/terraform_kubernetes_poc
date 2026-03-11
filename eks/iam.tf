@@ -61,6 +61,7 @@ resource "aws_iam_role_policy_attachment" "node_ssm" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   role       = aws_iam_role.eks_node_role.name
 }
+# giving autoscale permissions to node role so that Cluster autoscaler will get permissions to scale up and scale down
 
 
 ##### kubernetes ingress controller ###################
@@ -97,3 +98,57 @@ resource "aws_iam_role_policy_attachment" "ebs_driver" {
   role       = aws_iam_role.ebs_controller_role.name
 }
 ##### IAM ROLE FOR EBS CSI DRIVER #######################################
+
+#####IAM ROLE FOR CLUSTER AUTOSCALER #######################
+resource "aws_iam_role" "cluster_autoscaler_irsa" {
+  name = "eks-cluster-autoscaler-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.eks.arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub" = "system:serviceaccount:kube-system:cluster-autoscaler"
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "cluster_autoscaler_policy" {
+  name        = "cluster-autoscaler-policy"
+  description = "Permissions for Cluster Autoscaler to manage ASGs"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "autoscaling:DescribeAutoScalingGroups",
+          "autoscaling:DescribeAutoScalingInstances",
+          "autoscaling:DescribeLaunchConfigurations",
+          "autoscaling:DescribeTags",
+          "autoscaling:SetDesiredCapacity",
+          "autoscaling:TerminateInstanceInAutoScalingGroup",
+          "ec2:DescribeLaunchTemplateVersions"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "cluster_autoscaler_attach" {
+  role       = aws_iam_role.cluster_autoscaler_irsa.name
+  policy_arn = aws_iam_policy.cluster_autoscaler_policy.arn
+}
+
+#####IAM ROLE FOR CLUSTER AUTOSCALER #######################

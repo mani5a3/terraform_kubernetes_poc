@@ -13,4 +13,9 @@ resource "aws_eks_node_group" "eks_nodes" {
   instance_types = [var.node_instance_type]
 
   depends_on = [aws_eks_cluster.eks_cluster]
+
+  tags = {
+    "k8s.io/cluster-autoscaler/enabled"             = "true"
+    "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
+  }
 }

@@ -1,0 +1,37 @@
+# Runs on all nodes: Whenever a new node is added to the cluster, a pod from the DaemonSet is automatically scheduled on it.
+
+# Use cases:
+#     Node monitoring (e.g., Prometheus Node Exporter)
+#     Log collection (e.g., Fluentd, Logstash)
+#     Networking plugins (e.g., Calico, Weave)
+
+# One pod per node: Unlike Deployments where multiple replicas are spread across nodes, DaemonSets run exactly one pod per node by default (though you can use tolerations and nodeSelectors to control placement).
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd-daemonset
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: fluentd
+  template:
+    metadata:
+      labels:
+        name: fluentd
+    spec:
+      containers:
+      - name: fluentd
+        image: fluent/fluentd:v1.14-debian-1
+        resources:
+          limits:
+            memory: 200Mi
+            cpu: 200m
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log

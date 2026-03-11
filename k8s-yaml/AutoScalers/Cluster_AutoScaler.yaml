@@ -1,0 +1,19 @@
+# You deploy a workload, and some pods cannot be scheduled due to a lack of nodes.
+# CA(cluster autoscaler) detects this and adds a new EC2 instance to accommodate the workload.
+# Cluster Autoscaler (CA) ensures that when nodes are not needed, they are safely removed from the ASG.
+# Cluster Autoscaler (CA) Only works with Kubernetes clusters.
+
+# HPA → scale pods
+# VPA → adjust pod resources
+# Cluster Autoscaler → scale nodes
+
+# Cluster Autoscaler scales nodes based on pod resource requests, not actual CPU/memory usage
+# Min and max size define the scaling boundaries of an EKS node group, but Cluster Autoscaler monitors pending pods and automatically adjusts the node group size within those limits.
+
+# | Feature              | What it does              |
+# | -------------------- | ------------------------- |
+# | Node group `min/max` | Defines scaling limits    |
+# | Cluster Autoscaler   | Decides **when to scale** |
+
+# Check whether cluster autoscaler is present or not using:  kubectl get pods -n kube-system | grep autoscaler
+# Install cluster autoscaler and replace and cluster name and add env as region  and service account role created from terraform:  kubectl apply -f  https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml

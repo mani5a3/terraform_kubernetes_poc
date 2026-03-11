@@ -1,0 +1,38 @@
+# The Horizontal Pod Autoscaler (HPA) in Kubernetes automatically scales the number of Pods in a Deployment based on CPU and memory utilization
+# Make sure you have configured requests in hpa yaml file to hpa autoscaler will use requests not the limits
+# If you want custom metrics like requests per second you need to install prometheus adapter ..etc.
+# Vertical Pod Autoscaler automatically adjusts the CPU and memory requests/limits of pods based on their usage instead of increasing the number of pods.
+
+# HPA → scale pods
+# VPA → adjust pod resources
+# Cluster Autoscaler → scale nodes
+
+
+# In below yaml At least 1 Pod must always be running and The maximum number of Pods can go up to 5.
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hpa-example
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: myapp
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 70
+      
+    
