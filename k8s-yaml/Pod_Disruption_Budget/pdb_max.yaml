@@ -1,0 +1,20 @@
+# PodDisruptionBudget (PDB) in Kubernetes is a way to protect your application from too many voluntary disruptions at once, like during node maintenance, upgrades, or cluster autoscaling. 
+# It ensures that a minimum number or percentage of your pods remain available.
+# minAvailable → minimum number (or percentage) of pods that must stay running during voluntary disruptions.
+# maxUnavailable → maximum number (or percentage) of pods that can be unavailable at a time.
+# Pod failures or crashes. PDB does not protect against these.
+# DaemonSets are usually not affected by PDBs, because they have one pod per node
+# PDB only sees pods in its own namespace.
+# If a node dies or is deleted, the PDB cannot prevent pods from being lost, but the controllers (Deployment, StatefulSet) will reschedule pods elsewhere.
+# Node removal by Cluster Autoscaler is a voluntary disruption. PDBs can prevent some pods from being evicted, so autoscaling may be delayed or nodes may not be removed until safe.
+#✅Rule of thumb: Only one PDB per pod set is allowed.
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: myapp-pdb
+spec:
+  maxUnavailable: 2
+  selector:
+    matchLabels:
+      app: myapp
