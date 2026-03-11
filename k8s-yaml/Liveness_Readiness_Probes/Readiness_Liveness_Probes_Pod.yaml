@@ -1,0 +1,49 @@
+# Readiness probe checks whether the application is ready to receive traffic and controls if the pod should be part of the Service.
+# Liveness probe checks whether the application is still running properly and restarts the container if it is stuck or unhealthy.
+# Ready = Safe to receive traffic
+# Running properly = Process is alive
+
+# | Probe     | What it decides                     |
+# | --------- | ----------------------------------- |
+# | Readiness | Should this pod receive traffic?    |
+# | Liveness  | Should this container be restarted? |
+
+# Liveness/Readiness is NOT a one-time check.A continuous health monitor for the running container.It keeps checking for the entire life of the pod
+# Liveness checks DB process health by verifying the database port or running a ping command like mysqladmin or pg_isready, and restarts the container if it is unresponsive.
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-demo
+spec:
+  containers:
+  - name: jenkins
+    image: jenkins/jenkins:lts
+    ports:
+    - containerPort: 8080
+    
+    # 1️⃣ Startup Probe (wait until Jenkins fully boots)
+    startupProbe:
+      httpGet:              
+        path: /login
+        port: 8080
+      failureThreshold: 30
+      periodSeconds: 10
+
+    # 2️⃣ Readiness Probe (is it ready to accept traffic?)
+    readinessProbe:
+      httpGet:               # we have httpGet, tcpsocket and exec 
+        path: /login
+        port: 8080
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      failureThreshold: 3
+
+    # 3️⃣ Liveness Probe (is Jenkins stuck or dead?)
+    livenessProbe:
+      httpGet:              # we have httpGet, tcpsocket and exec 
+        path: /login
+        port: 8080
+      initialDelaySeconds: 180
+      periodSeconds: 30
+      failureThreshold: 3

@@ -1,0 +1,15 @@
+# authorizing the user to cluster scoped resources like nodes, pv
+# you can attach clusterrole to namespaced resources like pods, deployements but it will give access to the resources with in all namespaces
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cluster-role-binding-to-user-example
+subjects:
+  - kind: User
+    name: dev-user
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: developer-cluster-role
+  apiGroup: rbac.authorization.k8s.io

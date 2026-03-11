@@ -1,0 +1,41 @@
+# kubectl scale --replicas 5 rc <replication controller name> --> Updates only replicas field
+# kubectl edit rs myapp-replicaset --> Used to modify ANY part of the resource YAML
+# ReplicaSet supports set-based selectors
+# selector:
+#   matchExpressions:
+#     - key: app
+#       operator: In
+#       values:
+#         - nginx
+#         - frontend
+
+
+# ReplicaSet uses a LabelSelector object, which must include matchLabels.
+# | Resource                      | Selector Format                     |
+# | ----------------------------- | ------------------------            |
+# | ReplicationController (old)   | `selector: app: myapp`              |
+# | ReplicaSet / Deployment (new) | `selector: matchLabels: app: myapp` |
+
+# If a pod already exists with labels that match a ReplicaSet selector, the ReplicaSet will adopt that pod and won’t create a new one (as long as replica count is satisfied).
+
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+
+metadata:
+  name: myapp-replicaset
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80

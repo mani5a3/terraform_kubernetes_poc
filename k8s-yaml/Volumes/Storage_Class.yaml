@@ -1,0 +1,15 @@
+# Volume will be created: Only after Pod is scheduled In the same AZ as the node
+# when you create a PVC, it can create a PV automatically, but only if dynamic provisioning is configured.
+# when storage class has volumeBindingMode: WaitForFirstConsumer kubernetes will not create EBS volume immediately and not create PV immediately, it will wait until pod uses pvc
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: example-ebs-storage-example
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer # supported value Immediate -> PV is created immediately when PVC is created
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+parameters:
+  type: gp3
+  fsType: ext4

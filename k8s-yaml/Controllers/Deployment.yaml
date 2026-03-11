@@ -1,0 +1,29 @@
+# Recreate Deployment strategy: kills and recreates pods --> it has downtime
+# Rolling Update strategy: incremental updating exisiting pods with new ones
+   # Create new pods with updated software
+   # Ensure they are healthy then remove some old pods
+   # Continue this process until all existing pods will replaced with new ones
+   
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+  labels:
+    app: myapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: deployment-nginx-container
+          image: nginx
+          ports:
+            - containerPort: 80

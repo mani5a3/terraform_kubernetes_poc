@@ -1,0 +1,13 @@
+# Why Headless is Needed -> For Stateful applications like: MySQL cluster Kafka MongoDB
+# Each Pod needs a stable DNS name like: mysql-0.mysql-headless.default.svc.cluster.local
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-h
+spec:
+  clusterIP: None # This is make Headless service
+  selector:
+    app: mysql
+  ports:
+    - port: 3306

@@ -1,0 +1,19 @@
+# Node selectors are used to schedule pods on nodes with specific labels.
+# kubectl label nodes node1 size=Large --> It will add new label
+# kubectl label nodes node1 env=dev --overwrite --> It will update existing label
+# kubectl label nodes node1 env- --> It will remove the label
+# kubectl get nodes --show-labels --> it will show the list of labels attached to nodes
+# Cannot do OR/NOT conditions so we will use node affinity
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80
+  nodeSelector:
+    size: Large

@@ -1,0 +1,7 @@
+# set context: kubectl config set-context $(kubectl config current-context) --namespace=dev 
+# kubectl get pods --all-namespaces
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev

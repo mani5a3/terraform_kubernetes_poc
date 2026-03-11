@@ -1,0 +1,27 @@
+# Problem: Your app writes logs to files, but Kubernetes wants logs in stdout.
+# Solution: Add a sidecar that reads the file and ships logs to ELK/CloudWatch
+
+# kubectl exec -it <pod-name> -c <container-name> -- sh -> To log into specific container in pod
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container-no-volume
+spec:
+  containers:
+    # Container 1: Web Server
+    - name: web
+      image: nginx
+      ports:
+        - containerPort: 80
+
+    #  Container 2: Client
+    - name: client
+      image: busybox
+      command: ["/bin/sh", "-c"]
+      args:
+        - while true; do
+            wget -qO- http://localhost:80;
+            sleep 5;
+          done

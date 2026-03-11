@@ -1,0 +1,20 @@
+# | Mode          | Meaning                       |
+# | ------------- | ----------------------------- |
+# | ReadWriteOnce | Mounted by only one node      |
+# | ReadWriteMany | Multiple nodes can read/write |
+# | ReadOnlyMany  | Multiple nodes can read       |
+
+# PersistentVolumeReclaimPolicy: Retain/Delete
+--- 
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: example-persistent-volume
+spec:
+  accessModes:
+    - ReadWriteOnce # Only one node can write to this volume at a time. # supported values are ReadWriteOnce,ReadWriteMany,ReadonlyMany
+  persistentVolumeReclaimPolicy: Delete # deletes pv once pvc is deleted, Retain policy keeps pv and it's data
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /tmp/data

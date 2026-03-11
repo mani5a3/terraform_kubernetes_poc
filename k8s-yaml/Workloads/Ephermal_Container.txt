@@ -1,0 +1,10 @@
+NAME               READY   STATUS
+my-app-pod         1/1     Running
+
+If you want to debug it. You can create an ephemeral container as below
+
+kubectl debug -it my-app-pod --image=busybox --target=my-app-container
+
+-it → interactive terminal
+--image=busybox → the ephemeral container image
+--target → container to debug (optional)

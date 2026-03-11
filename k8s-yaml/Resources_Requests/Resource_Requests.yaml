@@ -1,0 +1,38 @@
+# kube-scheduler will decide on which node the pod should goes to based the amount of resources required by pod and available (cpu,memory) on node  it will select best node for pod.
+# If a container tries to use more CPU than its defined limit, it Does NOT crash or killed but Gets throttled (slowed down) 
+# if nodes has insufficient cpu it will show as follows:::  0/2 nodes are available: 2 Insufficient cpu. preemption: 0/2 nodes are available: 2 No preemption victims found for incoming pod
+# if nodes has insufficient memory it will show as follows::: container init was OOM-killed (memory limit too low?)
+# ❌ — you cannot change requests or limits of a running Pod.
+# kubectl top pod podname -n namespace
+# By default kubernetes doesn't has requests or limits set, it means any pod can consume as much as resources they want.
+# no requests, Limits --> in this scenario kubernetes will set requests like how we have limit
+
+# helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+# helm upgrade --install metrics-server metrics-server/metrics-server \
+#   --namespace kube-system \
+#   --set args={--kubelet-insecure-tls}
+
+# LIMITRANGE can help you to define default values to be set for containers in pods that are created without a request or limit specified in pod definition
+# LimitRange = Rule per container
+# ResourceQuota = namespace level
+# you cannot change resource requests/limits of a running Pod.
+# In Kubernetes, most of the Pod spec is immutable, including resource, requests
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-resource-requests
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80
+      resources:
+        requests:
+          memory: 500Mi
+          cpu: 1
+        limits:
+          memory: 1Gi
+          cpu: 2

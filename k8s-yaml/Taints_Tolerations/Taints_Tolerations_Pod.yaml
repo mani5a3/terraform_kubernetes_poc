@@ -1,0 +1,50 @@
+# Taints and Tolerations are used to control which pods can run on which nodes in a Kubernetes cluster
+# Taint is applied to nodes
+# It prevents pods from scheduling unless they have matching tolerations
+
+# kubectl taint nodes ip-10-0-102-208.ec2.internal app=blue:NoSchedule --> To taint the node
+# kubectl taint nodes ip-10-0-102-208.ec2.internal app=blue:NoSchedule- --> To untaint the node add hyphen at end of command
+
+# | ---------------- | -------------------------------------- |
+# | NoSchedule       | New pods cannot be scheduled           |
+# | PreferNoSchedule | Try to avoid scheduling but not strict |
+# | NoExecute        | Remove running pods + prevent new pods |
+
+# If a node has multiple taints with the same effect, the pod must have matching tolerations for each taint to be scheduled.
+# Taint and Tolerations doesnot tell pod to go to particular node. Instead, it only tells the node to only accept pods with certain tolerations
+
+# When to Use Taints & Tolerations: 🎯 Use Case: You want to protect or reserve nodes 👉 It is about blocking unwanted pods
+
+# Real Production Scenario 1 – Payment System --> we need to use both taints and tolerations and node affinity
+
+# You have: 5 nodes total -> 1 node labeled: workload=payments
+
+# You want:  Payment pods → only run on this node Other pods → NEVER run there
+
+# What happens if you use only Node Affinity?
+            # Payment pods go there ✅
+            # But other pods can also land there ❌
+# What happens if you use only Taints?
+            # Other pods blocked ✅
+            # But payment pods might run somewhere else ❌
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: myapp
+    tier: frontend
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+  tolerations: # kubectl taint nodes ip-10-0-102-208.ec2.internal app=blue:NoSchedule
+    - key: app
+      operator: "Equal"
+      value: blue
+      effect: NoSchedule
+
+
+

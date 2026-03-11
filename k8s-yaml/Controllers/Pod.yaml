@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: manual-nginx-pod
+  labels:
+    app: myapp
+    tier: frontend
+spec:
+  serviceAccountName: aws-load-balancer-controller
+  containers:
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80

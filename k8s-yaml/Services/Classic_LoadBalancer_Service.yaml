@@ -1,0 +1,23 @@
+# private subnets must be tagged with   kubernetes.io/role/internal-elb = 1
+# for public subnets kubernetes.io/role/elb = 1
+# service.beta.kubernetes.io/aws-load-balancer-internal: "true" will create lb in private subnet
+# You DO NOT create ALB using a Service of type LoadBalancer
+# ALB is created using an Ingress + AWS Load Balancer Controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+  name: myapp-loadbalancer
+  labels:
+    app: myapp
+spec:
+  type: LoadBalancer
+  selector:
+    app: myapp
+  ports:
+    - name: http
+      port: 80          # Public port on Load Balancer
+      targetPort: 80    # Container port
+      protocol: TCP

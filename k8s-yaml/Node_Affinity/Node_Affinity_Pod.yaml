@@ -1,0 +1,45 @@
+# kubectl label nodes node1 size=Large --> It will add new label
+# kubectl label nodes node1 env=dev --overwrite --> It will update existing label
+# kubectl label nodes node1 env- --> It will remove the label
+# kubectl get nodes --show-labels --> it will show the list of labels attached to nodes
+# nodeAffinity are used to schedule pods on specific nodes with matching labels using expressions.
+# nodeAffinity types: 
+      # 1) requiredDuringSchedulingIgnoredDuringExecution  -> If node does NOT match  → Pod will stay Pending.
+      # 2) PreferredDuringSchedulingIgnoredDuringExecution -> This is a preference, not mandatory.Scheduler will try to match, but if not possible → it still schedules pod.
+
+# IgnoredDuringExecution” Meaning -> Rule checked only at scheduling time, If node label changes later/removed → pod will NOT be evicted
+# Use Node Affinity When You Want to SELECT nodes
+
+# Real Production Scenario 1 – Payment System --> we need to use both taints and tolerations and node affinity
+
+# You have: 5 nodes total -> 1 node labeled: workload=payments
+
+# You want:  Payment pods → only run on this node Other pods → NEVER run there
+
+# What happens if you use only Node Affinity?
+            # Payment pods go there ✅
+            # But other pods can also land there ❌
+# What happens if you use only Taints?
+            # Other pods blocked ✅
+            # But payment pods might run somewhere else ❌
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: size
+                operator: In  # Exists/NotIn/In
+                values:
+                  - Large
+                  - Medium

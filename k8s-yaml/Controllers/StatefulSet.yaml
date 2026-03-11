@@ -1,0 +1,44 @@
+# with statefulsets pods are created in sequential order
+# Statefulset assigns a unique index to each pod. A number from starting from zero and increments by one
+# when you create a headless service each pod gets DNS record in the form of podname.headlessservicename.namespace.clusterdomain
+
+# volumeClaimTemplates:
+#   - metadata:
+#       name: mysql-data
+#     spec:
+#       accessModes:
+#         - ReadWriteOnce
+#       storageClassName: gp2   # change as per your cluster
+#       resources:
+#         requests:
+#           storage: 5Gi
+
+
+# StatefulSet uses --> 1 pod = 1 pvc = 1 pv = 1 EBS volume
+# Reason: Databases require stable identity + isolated storage + ordered lifecycle — which Deployment cannot guarantee.
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: Test12345
+  serviceName: mysql-h

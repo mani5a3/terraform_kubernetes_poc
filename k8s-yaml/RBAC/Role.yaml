@@ -1,0 +1,16 @@
+# authorizing the user to namespaced resources like pods, deployments
+# you can attach clusterrole to namespaced resources like pods, deployements but it will give access to the resources with in all namespaces
+# A ServiceAccount from another namespace can be referenced in a RoleBinding, but the permissions apply only to the namespace where the RoleBinding is created.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: developer-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods"] 
+    verbs: ["list", "get", "create", "update"]
+    # resourceNames: ["podname"] -> you can specify the pod names in yaml file 
+  - apiGroups: [""]
+    resources: ["configmap"] 
+    verbs: ["list", "get", "create", "update"]

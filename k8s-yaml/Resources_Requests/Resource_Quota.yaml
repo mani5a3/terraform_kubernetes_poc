@@ -1,0 +1,15 @@
+# How do we ensure total CPU & Memory consumed by all pods does not exceed some maximum --> this is can achieved by ResourceQuota
+# LimitRange = Rule per container
+# ResourceQuota = namespace level
+
+--- 
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: example-resource-quota
+spec:
+  hard:
+    requests.cpu: 2
+    requests.memory: 5Gi
+    limits.cpu: 2
+    limits.memory: 5Gi

@@ -1,0 +1,35 @@
+# Network policy controls which pods can talk to which pods.
+# Below network policy applies to pods labeled role: DB and  It allows ONLY Pods with label name: api-pod
+# When you apply any Ingress NetworkPolicy to a pod that pod becomes deny-all by default, Except what you explicitly allow.
+# In below example All incoming traffic to DB pods is blocked Except from api-pod on port 3306
+
+# | CNI Plugin | NetworkPolicy Support   |                   |
+# | ---------- | ---------------------   |                   |
+# | Calico     | ✅ Full support        |                   |
+# | Cilium     | ✅ Full support        |                   |
+# | Weave Net  | ✅ Support             |                   |
+# | Flannel    | ❌ No native support   | ([TechTarget][1]) |
+
+# If you want to allow a pod from particular namespace you can define namespaceSelector under the podSelector
+# If you want to allow a particular IP block then you can add ipBlock under the pod selector
+# In from section it allows these fields namespaceSelector,ipBlock,podSelector
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: example-ingress-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: DB
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              name: api-pod
+      ports:
+        - protocol: TCP 
+          port: 3306

@@ -1,0 +1,35 @@
+# check ebs csi driver is available or not - kubectl get pods -n kube-system
+# aws eks create-addon --cluster-name <cluster-name> --addon-name aws-ebs-csi-driver
+# check oidc conector created or not
+# aws eks describe-addon --cluster-name terraform-eks-cluster --addon-name aws-ebs-csi-driver --query "addon.status"
+# only CSI controller need AWS permissions , your apps pods doesnt' required
+                      # EBS Volume (created manually in AWS)
+                      #         ↓
+                      # PersistentVolume (cluster-scoped)
+                      #         ↓
+                      # PVC (default namespace)
+                      #         ↓
+                      # App Pod (default namespace)
+                      #         ↓
+                      # EBS CSI Controller (kube-system)
+                      #         ↓
+                      # AWS API (AttachVolume call)
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ebs-pvc-pv-example
+spec:
+  containers:
+    - name: myfrontend
+      image: nginx
+      volumeMounts:
+      - mountPath: "/var/www/html"
+        name: ebs-pvc
+  nodeSelector:
+    topology.kubernetes.io/zone: us-east-1a
+  volumes:
+    - name: ebs-pvc
+      persistentVolumeClaim:
+        claimName: ebs-persistent-volume-claim

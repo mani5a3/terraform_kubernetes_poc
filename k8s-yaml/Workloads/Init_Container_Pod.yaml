@@ -1,0 +1,45 @@
+# They are used to prepare the environment for the main application.
+# if init container fails it won't start main container
+
+# | Feature        | Init Container         | Sidecar Container |
+# | -------------- | ---------------------- | ----------------- |
+# | Runs when?     | Before app starts      | Alongside app     |
+# | Runs how long? | Stops after completion | Runs continuously |
+# | Purpose        | Setup                  | Support/assist    |
+
+# | Use Case           | What Init Container Does                 |
+# | -------------------| --------------------------------------   |
+# | Wait for DB        | Loop until DB is reachable               |
+# | Prepare files      | Download config/scripts before app starts|
+# | Set permissions    | Fix volume permissions                   |
+# | Database migration | Run migration before app                 |
+# | Fetch secrets      | Pull secrets from external system        |
+
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-containers-pod-example
+spec:
+  containers:
+    - name: main-app
+      image: busybox
+      command: ["/bin/sh", "-c"]
+      args:
+        - echo "SSH is up! Starting main app..." && sleep 3600
+
+  initContainers:
+    - name: wait-for-ssh
+      image: busybox
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          echo "Waiting for SSH on localhost:22..."
+          until nc -z -v -w5 localhost 22
+          do
+            echo "SSH not ready - sleeping 5s"
+            sleep 5
+          done
+          echo "SSH is up!"
+

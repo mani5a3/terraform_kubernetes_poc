@@ -1,0 +1,27 @@
+# kubectl create configmap  <configMap-Name> --from-literal=<key>=<value>
+# kubectl create configmap  <configMap-Name> --from-file=pathtofile
+# Below is the code get specific value from config map
+#  env:
+#   - name: username
+#     valueFrom:
+#       configMapKeyRef:
+#         name: app-config
+#         key: username
+# ❌ Environment variables from ConfigMaps or Secrets CANNOT be updated in a running Pod.
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: config-map-injecting-to-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80
+      envFrom:
+        - configMapRef:
+            name: app-config
+      command: ["/bin/sh", "-c"]
+      args:
+        - echo "Username is $username" "Password is $password" && sleep 120
