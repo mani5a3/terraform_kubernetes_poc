@@ -9,6 +9,7 @@ resource "aws_subnet" "public" {
   tags = {
     Name                     = "${var.cluster_name}-public-${count.index + 1}"
     "kubernetes.io/role/elb" = 1
+
   }
 }
 
@@ -22,5 +23,6 @@ resource "aws_subnet" "private" {
   tags = {
     Name                              = "${var.cluster_name}-private-${count.index + 1}"
     "kubernetes.io/role/internal-elb" = 1
+    "karpenter.sh/discovery"          = "terraform-eks-cluster"
   }
 }

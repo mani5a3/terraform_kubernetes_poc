@@ -17,5 +17,7 @@ resource "aws_security_group" "eks_cluster_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "${var.cluster_name}-cluster-sg" }
+  tags = {
+    Name = "${var.cluster_name}-cluster-sg"
+  "karpenter.sh/discovery" = "terraform-eks-cluster" }
 }
