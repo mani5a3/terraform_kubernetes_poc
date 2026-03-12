@@ -1,0 +1,87 @@
+# use curl http://web-service with in pod so it will distribute the requests to each pod within deployment
+
+# login to frontend pod and call backend service
+# Frontend Pod
+#       |
+#       |  HTTP request
+#       v
+# backend-service (ClusterIP)
+#       |
+#       v
+# kube-proxy
+#       |
+#       v
+# Backend Pod
+
+###### FrontEnd pods ######
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: web
+          image: nginx
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              echo "Pod: $(hostname)" > /usr/share/nginx/html/index.html
+              nginx -g "daemon off;"
+
+
+###### FrontEnd pods ######
+
+
+
+
+###### backend pods and service ######
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: web
+          image: nginx
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              echo "Pod: $(hostname)" > /usr/share/nginx/html/index.html
+              nginx -g "daemon off;"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+
+  ###### backend pods and service ######

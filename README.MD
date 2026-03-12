@@ -210,4 +210,10 @@ Kubernetes Complete Concepts Checklist:
         Seccomp / AppArmor
 
 
-Aws eks cluster creation using aws cli: 
+Deployment yaml: 
+spec
+ ├── replicas
+ ├── selector
+ └── template
+      └── spec
+           └── containers

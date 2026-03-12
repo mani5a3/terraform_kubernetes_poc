@@ -3,6 +3,7 @@
 # kubectl label nodes node1 env- --> It will remove the label
 # kubectl get nodes --show-labels --> it will show the list of labels attached to nodes
 # nodeAffinity are used to schedule pods on specific nodes with matching labels using expressions.
+
 # nodeAffinity types: 
       # 1) requiredDuringSchedulingIgnoredDuringExecution  -> If node does NOT match  → Pod will stay Pending.
       # 2) PreferredDuringSchedulingIgnoredDuringExecution -> This is a preference, not mandatory.Scheduler will try to match, but if not possible → it still schedules pod.
@@ -42,4 +43,3 @@ spec:
                 operator: In  # Exists/NotIn/In
                 values:
                   - Large
-                  - Medium

@@ -8,6 +8,7 @@
 # If a node dies or is deleted, the PDB cannot prevent pods from being lost, but the controllers (Deployment, StatefulSet) will reschedule pods elsewhere.
 # Node removal by Cluster Autoscaler is a voluntary disruption. PDBs can prevent some pods from being evicted, so autoscaling may be delayed or nodes may not be removed until safe.
 #✅Rule of thumb: Only one PDB per pod set is allowed.
+# The PodDisruptionBudget only restricts evictions, not direct deletions.
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget

@@ -1,0 +1,42 @@
+# Pod Affinity ensures that pods with specific labels are scheduled close to each other, usually on the same node or topology domain.
+
+# | Topology Key                    | Meaning                                 |
+# | ------------------------------- | --------------------------------------- |
+# | `kubernetes.io/hostname`        | separate pods across nodes              |
+# | `topology.kubernetes.io/zone`   | separate pods across availability zones |
+# | `topology.kubernetes.io/region` | separate pods across regions            |
+
+# | Feature           | Purpose                      |
+# | ------------------| ---------------------------- |
+# | Node Affinity     | Place pods on specific nodes |
+# | Pod Affinity      | Place pods together          |
+# | Pod Anti-Affinity | **Keep pods apart**          |
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: web
+            topologyKey: kubernetes.io/hostname
+

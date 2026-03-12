@@ -1,0 +1,38 @@
+# use curl http://web-service with in pod so it will distribute the requests to each pod within deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: nginx
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              echo "Pod: $(hostname)" > /usr/share/nginx/html/index.html
+              nginx -g "daemon off;"
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  selector:
+    app: web
+  ports:
+  - port: 80
+    targetPort: 80

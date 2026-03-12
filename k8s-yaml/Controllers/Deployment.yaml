@@ -3,7 +3,19 @@
    # Create new pods with updated software
    # Ensure they are healthy then remove some old pods
    # Continue this process until all existing pods will replaced with new ones
-   
+
+# spec
+#  ├── replicas
+#  ├── selector
+#  └── template
+#       └── spec
+#            └── containers 
+
+# Deployment
+#    ├── selector (which pods belong to me)
+#    └── template (how to create new pods)
+#             ├── metadata (labels for pods)
+#             └── spec (containers, volumes, affinity etc)
 ---
 apiVersion: apps/v1
 kind: Deployment
