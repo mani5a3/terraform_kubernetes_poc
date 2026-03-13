@@ -1,0 +1,81 @@
+# Create IAM roles for karpenter controller and karpenter node role --> refer terraform_kubernetes_poc\eks\iam.tf
+# Install Karpenter controller (Helm)
+# Create EC2NodeClass
+# Create NodePool
+# Deploy workload → nodes scale automatically
+
+# Cluster Autoscaler scales node groups, while Karpenter dynamically launches the right instance types based on pod requirements.
+# aws eks describe-cluster --name <cluster-name> --query "cluster.endpoint" --output text --> to get Kubernetes API Server endpoint
+
+# update region,cluster name,iam role arn, cluster endpoint in below helm command to install karpenter controller
+# helm install karpenter oci://public.ecr.aws/karpenter/karpenter --namespace karpenter --create-namespace --set settings.clusterName=terraform-eks-cluster --set settings.clusterEndpoint=https://64663667E89417D9CBD886551926D4AC.gr7.us-east-1.eks.amazonaws.com --set controller.env[0].name=AWS_REGION --set controller.env[0].value=us-east-1 --set-string serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::418272799492:role/karpentercontrollerrole --set serviceAccount.create=true
+
+
+# | Old API         | New API (v1.9+)                       |
+# | --------------- | ------------------------------------- |
+# | Provisioner     | NodePool                              |
+# | AWSNodeTemplate | EC2NodeClass                          |
+# | -               | NodeClaim (auto-created by Karpenter) |
+
+# EC2NodeClass: The EC2NodeClass tells Karpenter how to create the EC2 instance.
+# NodePool:  It tells Karpenter which EC2NodeClass to use and what pods need, so Karpenter can scale nodes dynamically.
+
+# Karpenter Controller Pod
+#         │
+#         │ OIDC (IRSA)
+#         ▼
+# Controller IAM Role
+#         │
+#         │ launches
+#         ▼
+# EC2 Instance
+#         │
+#         │ instance profile
+#         ▼
+# Node IAM Role
+
+# | Actor                    | Role                |
+# | ------------------------ | ------------------- |
+# | Karpenter controller pod | Controller IAM Role |
+# | EC2 worker nodes         | Node IAM Role       |
+
+# kubectl rollout restart deployment karpenter -n karpenter
+# kubectl patch ec2nodeclass standard -p '{"metadata":{"finalizers":[]}}' --type=merge
+---
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass # EC2NodeClass does not live in a namespace (cluster-scoped).
+metadata:
+  name: standard
+spec:
+  amiSelectorTerms:           
+    - alias: "al2@latest"
+  instanceProfile: "KarpenterNodeInstanceProfile-terraform-eks-cluster"
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: terraform-eks-cluster
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: terraform-eks-cluster
+
+---
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: default-pool # NodePool does not live in a namespace (cluster-scoped).
+spec:
+  template:
+    spec:
+      requirements:
+        - key: "karpenter.sh/capacity-type"
+          operator: In
+          values: ["on-demand", "spot"]
+        # - key: "node.kubernetes.io/instance-type"
+        #   operator: In
+        #   values: ["t3.medium", "t3.large"]
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: standard

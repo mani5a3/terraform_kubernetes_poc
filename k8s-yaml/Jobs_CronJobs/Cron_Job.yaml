@@ -1,0 +1,17 @@
+# Common Use Cases: Daily backups, Log cleanup, Database maintenance, Scheduled reports
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: example-cronjob
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cron-container
+            image: busybox
+            command: ["echo", "Running scheduled job"]
+          restartPolicy: Never

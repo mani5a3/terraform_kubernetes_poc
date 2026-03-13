@@ -1,0 +1,19 @@
+# A Job runs a task once (or a fixed number of times) and ensures it completes successfully.
+# Runs one-time tasks
+# Ensures pods complete successfully -> If a pod fails → Kubernetes retries -> Once completed → Job finishes
+# restartPolicy is set to Never or OnFailure because the Job controller manages retries by creating new pods
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: example-job
+spec:
+  completions: 2
+  template:
+    spec:
+      containers:
+      - name: job-container
+        image: busybox
+        command: ["echo", "Hello Kubernetes Job"]
+      restartPolicy: Never
