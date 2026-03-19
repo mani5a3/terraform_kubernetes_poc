@@ -1,0 +1,19 @@
+image:
+  repository: busybox
+  tag: latest
+  pullpolicy: IfNotPresent
+appMessage: "Payments Service"
+
+
+serviceAccount:
+  create: false
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: false

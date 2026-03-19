@@ -1,5 +1,11 @@
-# Readiness probe checks whether the application is ready to receive traffic and controls if the pod should be part of the Service.
-# Liveness probe checks whether the application is still running properly and restarts the container if it is stuck or unhealthy.
+# liveness probe: Checks if the container is alive.
+    #1) If the liveness probe fails, Kubernetes assumes the container is dead or stuck and will restart it.
+    #2) It helps recover from crashes or deadlocks automatically.
+
+# Readiness probe: Checks if the container is ready to serve traffic.
+    # 1) If the readiness probe fails, Kubernetes will remove the pod from the Service endpoints.
+    # 2) The container may be running (alive) but not ready to handle requests yet 
+
 # Ready = Safe to receive traffic
 # Running properly = Process is alive
 
@@ -14,36 +20,35 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: jenkins-demo
+  name: nginx-probes-example
 spec:
   containers:
-  - name: jenkins
-    image: jenkins/jenkins:lts
+  - name: nginx
+    image: nginx
     ports:
-    - containerPort: 8080
+    - containerPort: 80
     
-    # 1️⃣ Startup Probe (wait until Jenkins fully boots)
-    startupProbe:
-      httpGet:              
-        path: /login
-        port: 8080
-      failureThreshold: 30
-      periodSeconds: 10
+    # # 1️⃣ Startup Probe (wait until Jenkins fully boots)
+    # startupProbe:
+    #   httpGet:              
+    #     path: /login
+    #     port: 8080
+    #   failureThreshold: 30
+    #   periodSeconds: 10
 
     # 2️⃣ Readiness Probe (is it ready to accept traffic?)
     readinessProbe:
-      httpGet:               # we have httpGet, tcpsocket and exec 
-        path: /login
-        port: 8080
+      tcpSocket:               # we have httpGet, tcpsocket and exec
+        port: 80
       initialDelaySeconds: 60
       periodSeconds: 10
       failureThreshold: 3
 
-    # 3️⃣ Liveness Probe (is Jenkins stuck or dead?)
+    # 3️⃣ Liveness Probe (is nginx stuck or dead?)
     livenessProbe:
       httpGet:              # we have httpGet, tcpsocket and exec 
-        path: /login
-        port: 8080
+        path: /
+        port: 80
       initialDelaySeconds: 180
       periodSeconds: 30
       failureThreshold: 3

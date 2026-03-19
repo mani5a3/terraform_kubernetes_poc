@@ -211,9 +211,10 @@ Kubernetes Complete Concepts Checklist:
 
 
 Deployment yaml: 
-spec
- ├── replicas
- ├── selector
- └── template
-      └── spec
-           └── containers
+
+                spec
+                ├── replicas
+                ├── selector
+                └── template
+                └── spec
+                        └── containers
