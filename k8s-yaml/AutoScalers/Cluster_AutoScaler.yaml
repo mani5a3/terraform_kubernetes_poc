@@ -9,6 +9,12 @@
 # VPA adjusts resources based on historical usage, typically using high-percentile consumption with a safety margin, and applies updates by recreating pods
 # KEDA enables event-driven autoscaling in Kubernetes by scaling applications based on external metrics like queues, and it can scale workloads down to zero.
 
+        # KEDA watches external system
+        # 👉 Example: Kafka lag = 1000
+        # KEDA converts it into metrics
+        # KEDA creates an HPA internally
+        # HPA scales pods based on that metric
+
 # Cluster Autoscaler scales nodes based on pod resource requests, not actual CPU/memory usage
 # Min and max size define the scaling boundaries of an EKS node group, but Cluster Autoscaler monitors pending pods and automatically adjusts the node group size within those limits.
 
