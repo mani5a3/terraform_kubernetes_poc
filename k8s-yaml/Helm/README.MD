@@ -32,3 +32,22 @@ helm repo index . --> it will create an index file for your chart
 # To install a Helm chart from a repository, we add the repo containing index.yaml, update it, and then install using repo/chart-name. 
 
 helm install payments-app ./payments --> to install custom helm
+
+
+pipe : name: {{ .Values.name | upper }} -->ex:  name: payments  --> name: PAYMENTS
+
+
+example for include: You write once → reuse everywhere
+
+     (_helpers.tpl):
+            {{- define "payments.fullname" }}
+            {{ .Release.Name }}-{{ .Chart.Name }}
+            {{- end }}
+
+      metadata:
+      name: {{ include "payments.fullname" . }}
+
+
+      Release = payments-app Chart = payments
+
+      name: payments-app-payments
