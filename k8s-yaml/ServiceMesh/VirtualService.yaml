@@ -1,0 +1,31 @@
+
+# When a request comes, where should it go and how should it be routed
+# With a service mesh, services don’t talk to each other directly. 
+# A smart layer sits in between and manages all communication — 
+# it can retry failed requests, control traffic, secure the connection, and show what’s happening — all without changing your application code.
+
+# the host in both DestinationRule and VirtualService should refer to the same service.
+# VirtualService → decides WHERE traffic should go
+# DestinationRule → defines HOW traffic should be handled for that destination
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend
+  namespace: demo
+spec:
+  hosts:
+  - backend
+  http:
+  - retries:
+      attempts: 3
+      perTryTimeout: 2s
+    route:
+    - destination:
+        host: backend
+        subset: v1
+      weight: 80
+    - destination:
+        host: backend
+        subset: v2
+      weight: 20

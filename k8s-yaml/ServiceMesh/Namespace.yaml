@@ -1,0 +1,18 @@
+# Whenever a pod is created in this namespace, automatically attach a sidecar proxy (Envoy)
+# What happens WITHOUT sidecar injection Flow: frontend → backend (direct call)
+  # Problems:
+  #     No retry
+  #     No logging
+  #     No security (mTLS)
+  #     No traffic control
+  #     No visibility
+#👉 Istio is installed BUT NOT used
+# with sidecar injection flow wiil be: frontend → Envoy → Envoy → backend
+# kubectl exec -n demo frontend -- curl backend
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo
+  labels:
+    istio-injection: enabled

@@ -1,0 +1,19 @@
+# to call backend service kubectl exec -n <namespace> <frontend-pod> -- curl <backend-service>
+# kubectl exec -n demo frontend -- curl backend
+# for i in $(seq 1 20); do
+#   curl -s backend
+#   echo ""
+# done
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend
+  namespace: demo
+  labels:
+    app: frontend
+spec:
+  containers:
+  - name: frontend
+    image: curlimages/curl
+    command: ["sleep", "3600"]

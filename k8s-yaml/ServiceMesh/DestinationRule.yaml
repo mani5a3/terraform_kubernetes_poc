@@ -1,0 +1,21 @@
+
+# It tells Istio: When traffic goes to this service, how should it behave and how should it be grouped
+# Istio selects pods and used in virtual service with subsets v1 and v2
+# the host in both DestinationRule and VirtualService should refer to the same service.
+# VirtualService → decides WHERE traffic should go
+# DestinationRule → defines HOW traffic should be handled for that destination
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend
+  namespace: demo
+spec:
+  host: backend
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
